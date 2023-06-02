@@ -1,42 +1,43 @@
 <template>
   <el-dialog
-    title="请输入密码"
+    title="提示"
     top="30vh"
     width="450px"
-    custom-class="pwd-input-dialog"
+    custom-class="code-input-dialog"
     :visible.sync="modelVisible"
     :close-on-click-modal="false"
     :before-close="close"
   >
-    <div id="pwd-input--hidden">
+    <div class="code-title">
+      收款码已通过app内消息发送至买家账户 请正确填写收款码（买家提供）
+    </div>
+    <div id="code-input--hidden">
       <input
-        ref="pwdInputRef"
-        v-model="pwd"
+        ref="codeInputRef"
+        v-model="code"
         v-clickoutside="focus"
-        maxlength="6"
+        maxlength="4"
         style="position: absolute; z-index: -1; left: -100%; opacity: 0"
       />
-      <div class="pwd-box">
+      <div class="code-box">
         <div
-          v-for="item in 6"
+          v-for="item in 4"
           :key="item"
-          class="pwd-box__item"
+          class="code-box__item"
           :class="{
             active: tabIndex === item,
           }"
         >
-          <i v-if="pwd.length > item - 1"></i>
+          <i v-if="code.length > item - 1"></i>
         </div>
       </div>
-      <div v-show="errorVisible" class="pwd-error">密码错误</div>
     </div>
     <template #footer>
-      <el-button style="margin-right: 10px" @click="close">取 消</el-button>
       <el-button
         type="primary"
         style="margin-right: 10px"
         @click="handleOk"
-        :disabled="pwd.length < 6"
+        :disabled="code.length < 4"
         >确 定</el-button
       >
     </template>
@@ -45,24 +46,22 @@
 
 <script setup>
 import { ref, computed, nextTick } from "vue";
-import { checkoutPayPassword } from "@/request/api/login";
 
-const emit = defineEmits(["succes"]);
+const emit = defineEmits(["success"]);
 
 const modelVisible = ref(false);
-const errorVisible = ref(false);
 
-const pwd = ref("");
-const pwdInputRef = ref(null);
+const code = ref("");
+const codeInputRef = ref(null);
 
 const tabIndex = computed(() => {
-  const pwdLen = pwd.value.length;
-  return pwdLen === 0 ? 1 : pwdLen;
+  const codeLen = code.value.length;
+  return codeLen === 0 ? 1 : codeLen;
 });
 
 const focus = () => {
   nextTick(() => {
-    pwdInputRef.value.focus();
+    codeInputRef.value.focus();
   });
 };
 
@@ -72,37 +71,13 @@ const show = () => {
 };
 
 const close = () => {
-  pwd.value = "";
+  code.value = "";
   modelVisible.value = false;
 };
 
 const handleOk = async () => {
-  // 校验密码长度
-  // if (this.pwd.length < 6) {
-  //   // 提示输入完整密码
-  //   this.$warning("请输入完整的六位密码");
-  // } else {
-  // 验证密码
-  const body = {
-    passWord: pwd.value,
-    useType: 3,
-  };
-  // 校验密码
-  const { status, data } = await checkoutPayPassword(body);
-  if (status === 200 && data[0]?.isSuccess === 1) {
-    // 发起成功
-    emit("success", { securityCode: data[0].securityCode });
-
-    close();
-  } else {
-    // 展示错误信息
-    errorVisible.value = true;
-    // 重置
-    pwd.value = "";
-    // 聚焦
-    focus();
-    // }
-  }
+  // 发起成功
+  emit("success", { code: code.value });
 };
 
 defineExpose({
@@ -110,23 +85,35 @@ defineExpose({
 });
 </script>
 <style lang="scss">
-.pwd-input-dialog {
-  .pwd-box {
-    width: 90%;
+.code-input-dialog {
+  .el-dialog__body {
+    padding-top: 0;
+  }
+  .code-title {
+    font-size: 16px;
+    font-family: PingFangSC-Medium, PingFang SC;
+    font-weight: normal;
+    color: rgba(1, 6, 33, 0.9);
+    margin-bottom: 20px;
+  }
+  .code-box {
+    width: 80%;
     height: 44px;
     padding-bottom: 1px;
-    margin: 0 auto 10px;
     background: #fff;
     display: flex;
+    justify-content: center;
     cursor: pointer;
+    margin: 0 auto;
 
     &__item {
+      width: 44px;
+      height: 44px;
       list-style-type: none;
       text-align: center;
       line-height: 44px;
       -webkit-box-flex: 1;
       flex: 1;
-      -webkit-flex: 1;
       margin: 0px 10px;
       border: 1px solid rgba(217, 217, 217, 1);
       border-radius: 4px;
@@ -142,11 +129,6 @@ defineExpose({
     &__item.active {
       border: 1px solid var(--color-primary);
     }
-  }
-
-  .pwd-error {
-    color: #dd4c4d;
-    margin-left: 30.5px;
   }
 }
 </style>

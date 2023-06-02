@@ -6,6 +6,10 @@ import { Message } from "element-ui";
 
 import { handleTree, filterObj, deepClone, download } from "./common";
 
+import { serialize } from "object-to-formdata";
+
+// const formDataOptions = {};
+
 // 请求方法
 // import {
 //     getDicts
@@ -190,6 +194,14 @@ export default {
     // object -> form-data
 
     Vue.prototype.$useFormData = (object) => {
+      // return serialize(
+      //   object,
+      //   { allowEmptyArrays: true, dotsForObjectNotation: true }
+      //   // options // optional
+      //   // existingFormData, // optional
+      //   // keyPrefix // optional
+      // );
+      // FIXME:表单转换 参数异常
       // 创建
       const form = new FormData();
       // 循环
@@ -201,24 +213,23 @@ export default {
           if (Array.isArray(value)) {
             // 空数组
             if (value.length === 0) {
-              form.append(key, []);
+              form.append(key, "");
               continue;
             }
-            for (let index = 0; index < value.length; index++) {
-              const element = value[index];
 
-              if (
-                Object.prototype.toString.call(element) === "[object Object]"
-              ) {
-                form.append(key, JSON.stringify(element));
-              } else {
-                form.append(key, element);
+            if (value.every((_) => _ instanceof File)) {
+              for (let index = 0; index < value.length; index++) {
+                const file = value[index];
+                form.append(key, file);
               }
+            } else {
+              form.append(key, JSON.stringify(value));
             }
           } else if (
             // 对象
             Object.prototype.toString.call(value) === "[object Object]"
           ) {
+            // form.append(key, JSON.stringify(value));
             form.append(key, JSON.stringify(value));
           } else {
             {

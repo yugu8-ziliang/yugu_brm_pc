@@ -18,7 +18,7 @@ export default {
       message,
       type,
       customClass,
-      duration: 300000,
+      duration: 3000,
       dangerouslyUseHTMLString,
       showClose: true,
     });
