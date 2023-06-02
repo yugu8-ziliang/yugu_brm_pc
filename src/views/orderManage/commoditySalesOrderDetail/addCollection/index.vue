@@ -385,6 +385,7 @@ import {
 export default {
   nameL: "addCollection",
   components: { Pwd, SelectArea, Tips },
+  inject: ["$baseMessage"],
   data() {
     return {
       alreadyInit: false, //是否已初始化
@@ -948,6 +949,7 @@ export default {
      * @description:  下方按钮 提交事件
      */
     async handleSubmit() {
+      this.$baseMessage("哈哈哈~~", "success", "admin-hey-message-success");
       // validate
 
       const isValid = await this.handleValidate();

@@ -47,10 +47,6 @@
 <script setup>
 import { ref, inject } from "vue";
 
-const $baseMessage = inject("$baseMessage");
-
-console.log("inject key=>", key);
-
 const modelVisible = ref(false);
 
 /**
@@ -60,7 +56,7 @@ const show = () => (modelVisible.value = true);
 /**
  * @description: 确认
  */
-const ok = () => $baseMessage("测试", "success", "hey-success"); // (modelVisible.value = false);
+const ok = () => (modelVisible.value = false);
 
 defineExpose({
   show,

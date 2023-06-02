@@ -27,7 +27,7 @@
         </div>
       </div>
     </div>
-    <div class="container-main" :class="{ withFooter: footer }">
+    <div class="container-main" :class="{ 'with-footer': footer }">
       <slot name="default"></slot>
     </div>
     <div v-if="footer" class="container-footer">
@@ -106,12 +106,13 @@ $footerHieght: 52px;
   .container-main {
     background-color: #fff;
     height: calc(100vh - #{$headerTop} - #{$headerHeight});
+    overflow-x: hidden;
     overflow-y: scroll;
     padding: 16px 24px 0;
     box-sizing: border-box;
   }
 
-  .container-main.withFooter {
+  .container-main.with-footer {
     height: calc(100vh - #{$headerTop} - #{$footerHieght} - #{$headerHeight});
   }
 

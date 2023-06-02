@@ -121,11 +121,11 @@ export default {
       this.$emit("pagination", { pageNum: val, pageSize: this.limit });
     },
     // 刷新
-    hanleRefresh() {
+    handleRefresh() {
       this.$emit("hanleRefresh");
     },
     // 返回上一页面
-    handleBreak() {
+    handleBack() {
       this.$router.go(-1);
     },
   },
@@ -213,6 +213,7 @@ $footerHieght: 52px;
   .container-main {
     background-color: #fff;
     height: calc(100vh - #{$headerTop} - #{$headerHeight});
+    overflow-x: hidden;
     overflow-y: scroll;
     padding: 16px 24px 0;
     box-sizing: border-box;
@@ -225,7 +226,7 @@ $footerHieght: 52px;
       display: flex;
       align-items: right;
       justify-content: right;
-      padding-top: 20px;
+      // padding-top: 20px;
     }
   }
 }

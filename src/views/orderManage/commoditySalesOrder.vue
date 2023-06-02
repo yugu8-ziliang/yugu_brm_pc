@@ -107,22 +107,10 @@
     <u-table
       ref="plTable"
       class="utable"
-      :height="$store.getters.screenHeight - 500 + 'px'"
+      :height="$store.getters.screenHeight - 480 + 'px'"
       :border="false"
       :header-row-style="{ height: '46px' }"
-      :header-cell-style="{
-        padding: '0px 0px',
-        'font-size': '14px',
-        color: 'rgba(1, 6, 33, 0.65)',
-        background: 'rgba(0, 0, 0, 0.02)',
-      }"
       :row-style="{ height: '46px' }"
-      :cell-style="{
-        padding: '0px 0px',
-        'font-size': '14px',
-        color: 'rgba(1, 6, 33, 0.7)',
-        height: '46px',
-      }"
       use-virtual
       :row-height="46"
       showBodyOverflow="tooltip"

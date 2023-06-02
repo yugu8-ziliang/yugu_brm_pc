@@ -35,6 +35,10 @@ module.exports = {
       patterns: [
         // 这个是绝对路径,不能使用 alias 中配置的别名路径，如@表示的src
         path.resolve(__dirname, "./src/assets/style/mixin.scss"),
+        path.resolve(
+          __dirname,
+          "./src/assets/style/variables/variables.module.scss"
+        ),
       ],
     },
   },

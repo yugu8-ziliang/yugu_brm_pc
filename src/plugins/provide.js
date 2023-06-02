@@ -3,7 +3,7 @@
  * @Description: 全局注入方法/属性
  */
 
-import { ElMessage, ElMessageBox } from "element-ui";
+import { Message, MessageBox } from "element-ui";
 
 import { closePage } from "@/utils/global";
 
@@ -14,11 +14,11 @@ export default {
     customClass,
     dangerouslyUseHTMLString
   ) => {
-    ElMessage({
+    Message({
       message,
       type,
       customClass,
-      duration: messageDuration,
+      duration: 300000,
       dangerouslyUseHTMLString,
       showClose: true,
     });
@@ -31,7 +31,7 @@ export default {
     confirmButtonText = "确定",
     cancelButtonText = "取消"
   ) => {
-    ElMessageBox.confirm(content, title || "温馨提示", {
+    MessageBox.confirm(content, title || "温馨提示", {
       confirmButtonText,
       cancelButtonText,
       closeOnClickModal: false,

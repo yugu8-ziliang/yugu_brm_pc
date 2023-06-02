@@ -4,11 +4,11 @@
 **/
 
 /* theme color */
-$--color-primary: #0BA198;
+$--color-primary: #0ba198;
 // $--color-primary: #048790;
 $--color-success: #13ce66;
-$--color-warning: #FAAD14;
-$--color-danger: #DD4C4D;
+$--color-warning: #faad14;
+$--color-danger: #dd4c4d;
 // $--color-info: #1E1E1E;
 
 $--button-font-weight: 400;
@@ -29,23 +29,4 @@ $--font-path: "~element-ui/lib/theme-chalk/fonts";
 // https://www.bluematador.com/blog/how-to-share-variables-between-js-and-sass
 :export {
   theme: $--color-primary;
-}
-
-// 导航菜单样式
-.el-menu--popup-bottom-start {
-  margin-top: 8px !important;
-}
-
-.el-menu--popup {
-  padding: 0px !important;
-  // min-width: auto;
-}
-
-
-.el-dialog__header{
-  // border-bottom: 1px solid rgba(1, 6, 33, 0.06);
-  .el-dialog__title{
-    font-size: 16px;
-    color: rgba(1, 6, 33, 0.9);
-  }
 }
