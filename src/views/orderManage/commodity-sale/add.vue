@@ -390,8 +390,9 @@ import {
 } from "@/utils/image-upload";
 
 import _ from "lodash";
+
 export default {
-  nameL: "addCollection",
+  nameL: "AddCommoditySale",
   components: { Pwd, Code, SelectArea, Tips },
   inject: ["$baseMessage"],
   data() {

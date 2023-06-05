@@ -1142,7 +1142,7 @@ import {
   remind,
 } from "@/request/api/commoditySalesOrderDetail/index";
 export default {
-  // name: "commoditySalesOrderDetail",
+  name: "CommoditySaleDetail",
   data() {
     return {
       form: {

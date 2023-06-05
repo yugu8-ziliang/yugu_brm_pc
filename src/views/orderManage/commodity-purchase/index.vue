@@ -333,7 +333,7 @@ import {
   selfProduct,
 } from "@/request/api/salesOrder/salesOrder.js";
 export default {
-  name: "commodityPurchaseOrder",
+  name: "CommondityPurchaseList",
   data() {
     return {
       activeName: "1",
@@ -622,7 +622,7 @@ export default {
       }
       console.log(id, type);
       this.$router.push({
-        path: "purchaseOrdersDetail",
+        path: "purchase-detail",
         query: { id: id, type: usertype },
       });
     },

@@ -790,6 +790,7 @@ import {
   remind2,
 } from "@/request/api/commoditySalesOrderDetail/index";
 export default {
+  name: "CommondityPurchaseDetail",
   data() {
     return {
       remark: "",
@@ -814,19 +815,16 @@ export default {
         this.detailMsg.fromusername == ""
           ? ""
           : this.detailMsg.fromusername + "," + this.detailMsg.fromuserphone;
-      let ordertype1 =
-        this.detailMsg.fromusername == ""
-          ? 1
-          : 5;
+      let ordertype1 = this.detailMsg.fromusername == "" ? 1 : 5;
 
       this.$router.push({
         path: "payforPurchase",
         query: {
           id: this.detailMsg.id,
-          isConfirm: 0,//this.detailMsg.isConfirm,
+          isConfirm: 0, //this.detailMsg.isConfirm,
           fromuser: fromuser,
           ordertype: this.detailMsg.ordertype == 2 ? 1 : 2,
-          ordertype1: ordertype1
+          ordertype1: ordertype1,
         },
       });
     },

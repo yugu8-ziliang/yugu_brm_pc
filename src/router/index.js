@@ -234,9 +234,9 @@ export const constantRoutes = [
     },
     children: [
       {
-        path: "commoditySalesOrder",
-        name: "commoditySalesOrder",
-        component: () => import("@/views/orderManage/commoditySalesOrder.vue"),
+        path: "commodity-sale",
+        name: "CommoditySaleList",
+        component: () => import("@/views/orderManage/commodity-sale"),
         meta: {
           title: "商品销售单",
           icon: " ",
@@ -244,41 +244,57 @@ export const constantRoutes = [
         },
       },
       {
-        path: "commoditySalesOrderDetail",
-        name: "commoditySalesOrderDetail",
+        path: "commodity-detail",
+        name: "CommoditySaleDetail",
         hidden: true,
-        component: () =>
-          import(
-            "@/views/orderManage/commoditySalesOrderDetail/commoditySalesOrderDetail.vue"
-          ),
+        component: () => import("@/views/orderManage/commodity-sale/detail"),
         meta: {
           title: "销售单详情",
           icon: " ",
-          activeMenu: "/orderManagement/commoditySalesOrder",
+          activeMenu: "/orderManagement/commodity-sale",
         },
       },
       {
-        path: "commodityPurchaseOrder",
-        name: "commodityPurchaseOrder",
+        path: "add-collection",
+        name: "AddCommoditySale",
+        hidden: true,
+        component: () => import("@/views/orderManage/commodity-sale/add"),
+        meta: {
+          title: "填写收款信息",
+          icon: " ",
+        },
+      },
+      {
+        path: "purchase-list",
+        name: "CommondityPurchaseList",
         component: () =>
-          import("@/views/orderManage/commodityPurchaseOrder.vue"),
+          import("@/views/orderManage/commodity-purchase/index.vue"),
         meta: {
           title: "商品采购单",
           icon: " ",
         },
       },
       {
-        path: "purchaseOrdersDetail",
-        name: "purchaseOrdersDetail",
+        path: "purchase-detail",
+        name: "CommondityPurchaseDeatail",
         hidden: true,
         component: () =>
-          import(
-            "@/views/orderManage/commoditySalesOrderDetail/purchaseOrdersDetail.vue"
-          ),
+          import("@/views/orderManage/commodity-purchase/detail.vue"),
         meta: {
           title: "采购单详情",
           icon: " ",
-          activeMenu: "/orderManagement/commodityPurchaseOrder",
+          activeMenu: "/orderManagement/purchase-list",
+        },
+      },
+
+      {
+        path: "add-purchase",
+        name: "AddCommodityPurchase",
+        hidden: true,
+        component: () => import("@/views/orderManage/commodity-purchase/add"),
+        meta: {
+          title: "支付采购款",
+          icon: " ",
         },
       },
       {
@@ -326,17 +342,7 @@ export const constantRoutes = [
           noCache: true,
         },
       },
-      {
-        path: "addCollection",
-        name: "addCollection",
-        hidden: true,
-        component: () =>
-          import("@/views/orderManage/commoditySalesOrderDetail/addCollection"),
-        meta: {
-          title: "填写收款信息",
-          icon: " ",
-        },
-      },
+
       {
         path: "paymentRecord",
         name: "paymentRecord",
@@ -1623,8 +1629,7 @@ export const constantRoutes = [
           {
             path: "commoditySalesOrder",
             name: "commoditySalesOrder",
-            component: () =>
-              import("@/views/orderManage/commoditySalesOrder.vue"),
+            component: () => import("@/views/orderManage/commodity-sale"),
             meta: {
               title: "商品销售单",
               icon: " ",
@@ -1635,9 +1640,7 @@ export const constantRoutes = [
             name: "commoditySalesOrderDetail",
             hidden: true,
             component: () =>
-              import(
-                "@/views/orderManage/commoditySalesOrderDetail/commoditySalesOrderDetail.vue"
-              ),
+              import("@/views/orderManage/commodity-sale/detail"),
             meta: {
               title: "销售单详情",
               icon: " ",
@@ -1659,9 +1662,7 @@ export const constantRoutes = [
             name: "purchaseOrdersDetail",
             hidden: true,
             component: () =>
-              import(
-                "@/views/orderManage/commoditySalesOrderDetail/purchaseOrdersDetail.vue"
-              ),
+              import("@/views/orderManage/commodity-purchase/detail.vue"),
             meta: {
               title: "采购单详情",
               icon: " ",
@@ -1737,7 +1738,7 @@ export const constantRoutes = [
             path: "commodityPurchaseOrder",
             name: "commodityPurchaseOrder",
             component: () =>
-              import("@/views/orderManage/commodityPurchaseOrder.vue"),
+              import("@/views/orderManage/commodity-purchase/index.vue"),
             meta: {
               title: "商品采购单",
               icon: " ",

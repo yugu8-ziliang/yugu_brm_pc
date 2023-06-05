@@ -242,7 +242,7 @@
 import moment from "moment";
 import { sellInfo } from "@/request/api/salesOrder/salesOrder.js";
 export default {
-  name: "commoditySalesOrder",
+  name: "CommoditySaleList",
   data() {
     return {
       //  用户类型 0.全部 1.平台 2.非平台
