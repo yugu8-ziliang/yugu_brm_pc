@@ -295,6 +295,7 @@ export const constantRoutes = [
         meta: {
           title: "支付采购款",
           icon: " ",
+          activeMenu: "/orderManagement/purchase-list",
         },
       },
       {

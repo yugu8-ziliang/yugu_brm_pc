@@ -6,7 +6,7 @@
     <!-- 付款人,订单金额 -->
     <div class="container-payer">
       <div class="container-payer__row">
-        <span class="label">付款人：</span>
+        <span class="label">收款人：</span>
         <span>{{ data.userName }}</span>
         <user-type :type="data.UserType"></user-type>
         <span>{{ data.userPhone }}</span>
@@ -18,7 +18,7 @@
           <span>{{ data.orderPrice }}元</span>
         </template>
         <template v-else>
-          <span>未收金额: </span>
+          <span>未付金额: </span>
           <span>{{ data.allShouldPayPrice }}元</span>
         </template>
       </div>
@@ -28,8 +28,7 @@
     <!-- 经营往来款抵充 -->
     <!-- FIXME:散户添加收付款时，不显示经营往来款抵充 ?  -->
     <!-- 经营往来款抵充为0，且平账金额为0时不显示该选项 -->
-    <!-- v-if="data.comeInPrice !== 0 || data.balancePrice !== 0" -->
-    <template>
+    <template v-if="data.comeInPrice !== 0 || data.balancePrice !== 0">
       <div class="container-current">
         <div class="label container-current__label">
           <span>经营往来款抵充</span
@@ -44,7 +43,7 @@
           <!-- isCanChecked   往来款是否可选，0：不可选，1：可选 -->
           <el-checkbox
             v-model="formData.isComeInChecked"
-            :disabled="!data.isCanChecked"
+            :disabled="!data.isCanChecked || !!(this.isP && this.isF)"
           >
             <span>经营往来款抵充：</span>
 
@@ -65,13 +64,16 @@
     <template v-if="remaiNoReceive === 0 || !hiddenDeduction">
       <!-- 剩余未收金额 -->
       <div class="container-remain-noreceived">
-        <span>剩余未收金额： </span><span>{{ remaiNoReceive }}元</span>
+        <span>剩余未付金额： </span><span>{{ remaiNoReceive }}元</span>
       </div>
       <!-- 抵扣 -->
       <div class="container-deduction">
         <div class="container-deduction__label label">其他往来款抵扣</div>
         <div class="container-deduction__checks">
-          <el-checkbox-group v-model="formData.deductInfo">
+          <el-checkbox-group
+            v-model="formData.deductInfo"
+            :disabled="!!(this.isP && this.isF)"
+          >
             <el-checkbox label="advancePrice">
               <span>预付款：</span>
               <el-tooltip
@@ -114,36 +116,38 @@
       <!-- DIVIDER -->
       <el-divider direction="horizontal"></el-divider>
     </template>
+    <!-- 平台首次付款 不显示下方表单 -->
+    <div class="container-bill" v-if="isP && isF">
+      <div class="container-bill__label">
+        <span>本次付款金额: </span>
+        <span>{{ remainNeedReceive }}元</span>
+      </div>
+      <div class="container-bill__content">
+        <div class="content-row">线上支付: {{ onlinePaymentSum }}元</div>
+        <div class="content-row">
+          <div class="content-row__title">
+            线下支付: {{ offlinePaymentSum }}元
+          </div>
+          <div class="content-row__detail">
+            <span v-for="item in offlinePayment" :key="item.label"
+              >{{ item.label }}: {{ item.value }}元</span
+            >
+          </div>
+        </div>
+      </div>
+    </div>
     <!-- 剩余需收金额为0 直接隐藏 -->
-    <template v-if="remainNeedReceive > 0">
+    <!-- FIXME:  v-if="!(isP && isF) && remainNeedReceive > 0 -->
+    <template v-else>
       <!-- 剩余需收金额 -->
       <div class="container-remain-needreceive">
         <div class="remain-needreceive__label">
-          <span>剩余需收金额：</span>
+          <span>剩余需付金额: </span>
           <span>{{ remainNeedReceive }}元</span>
         </div>
       </div>
-      <!-- 赊账授信 授信额度 creditTotalAmount 存在即可展示此模块  -->
-      <div class="container-credit" v-if="data.creditTotalAmount > 0">
-        <div class="container-credit__label">
-          赊账授信 超出赊账额度部分计入往来款，往来款没有赊账期限
-        </div>
-        <div class="container-credit__check">
-          <!-- 是否赊账 -->
-          <el-checkbox v-model="isLimitRewardOn">全部赊账 </el-checkbox>
-          <!-- 剩余额度 -->
-          <span class="limit-valid"
-            >对方可用赊账额度：{{ data.creditRemainAmount }}元</span
-          >
-          <!-- 到期金额 不为0则显示 -->
-          <template v-if="data.expireMoney">
-            <span class="limit-expire">额度内到期金额：</span>
-            <span>{{ data.expireMoney }}元</span>
-          </template>
-        </div>
-      </div>
       <!-- 实际收款 -->
-      <div class="container-actual" v-if="!isLimitRewardOn">
+      <div class="container-actual">
         <div class="container-actual__label">实际收款</div>
         <div class="container-actual__groups">
           <el-form
@@ -155,7 +159,7 @@
             :rules="payFormRules"
             size="mini"
           >
-            <el-form-item label="本次收款金额">
+            <el-form-item label="本次付款金额">
               <!--    prefix-icon="el-icon-date" -->
               <el-input
                 v-model="receiveTotal"
@@ -202,9 +206,9 @@
             </el-form-item>
             <el-form-item label="线下收款" v-if="formData.isHaveOfflinePay">
               <template v-for="key in offlineReceiptWaysMap.keys()">
+                <!--  v-if="filterOfflineReciptWay(key)" -->
                 <el-checkbox
                   :key="key"
-                  v-if="filterOfflineReciptWay(key)"
                   v-model="payWayCheckedMap[offlineReceiptWaysMap.get(key).en]"
                   @change="
                     (value) =>
@@ -324,6 +328,7 @@
           v-model="formData.remark"
           type="textarea"
           :autosize="{ minRows: 5, maxRows: 10 }"
+          :disabled="!!(this.isP && this.isF)"
           maxlength="200"
           show-word-limit
           placeholder="请输入内容"
@@ -333,23 +338,23 @@
 
     <template #footer>
       <div class="footer-text">
-        <span>本次收款合计：{{ actualPay }}元 </span
-        ><span class="footer-text__credit">{{ limitCreditText }}</span>
+        <span>本次付款合计：{{ actualPay }}元 </span>
+        <!-- <span class="footer-text__credit">{{ limitCreditText }}</span> -->
       </div>
-      <div class="footer-action">
-        <!-- 选择了线上支付 -->
+      <!-- 选择了线上支付 -->
+      <!-- <div class="footer-action">
         <el-button
           v-if="formData.isHaveOnlinePay"
           size="mini"
           @click="handleSubmit"
           >扫码收款</el-button
         >
-      </div>
+      </div> -->
       <!-- 选择了线上支付 -->
       <!-- FIXME: v-if="formData.isHaveOfflinePay" -->
       <div class="footer-action">
         <el-button type="primary" size="mini" @click="handleSubmit"
-          >确认发送</el-button
+          >确认付款</el-button
         >
       </div>
     </template>
@@ -363,6 +368,7 @@
 </template>
 
 <script>
+/* 平台首次:不可勾选 */
 /* 平台采购单:1.仅选择线下时 输入的是 收款码 */
 import {
   newPayLoad,
@@ -470,7 +476,13 @@ export default {
         transferNumber: "",
       },
 
-      data: { creditTotalAmount: 0, creditRemainAmount: 0 },
+      data: {
+        creditTotalAmount: 0,
+        creditRemainAmount: 0,
+        onlinePayment: {},
+        offlinePayment: {},
+        remark: [],
+      },
     };
   },
   computed: {
@@ -479,6 +491,33 @@ export default {
     },
     isF() {
       return Number(this.$route.query.isF);
+    },
+    offlinePayment() {
+      const { offlinePayment } = this.data;
+      return Object.keys(offlinePayment).reduce((pre, cur) => {
+        const zh = offlineReceiptWaysMap.get(receiptWayTypeMap.get(cur)).zh;
+        const value = offlinePayment[cur];
+        return [...pre, { label: zh, value }];
+      }, []);
+    },
+    /**
+     * @description: 线上付款总和
+     */
+    onlinePaymentSum() {
+      const { onlinePayment } = this.data;
+      const [sum = 0] = Object.values(onlinePayment);
+      return sum;
+    },
+
+    /**
+     * @description: 线下付款总和
+     */
+    offlinePaymentSum() {
+      const { offlinePayment } = this.data;
+      return Object.values(offlinePayment).reduce(
+        (pre, cur) => (pre = pre + Number(cur)),
+        0
+      );
     },
     /**
      * @description: 未收款总数 需要收款的总数(订单总额/剩余未支付款)
@@ -623,47 +662,17 @@ export default {
     },
 
     /**
-     * @description: 下方 额度外授信 FIXME:分五种情况组织
+     * @description: 下方 展示文字
      */
     limitCreditText() {
       // remainNeedReceive 剩余需收
-      const { creditRemainAmount, creditTotalAmount } = this.data;
-
-      // 开启赊账
-      if (this.isLimitRewardOn) {
-        // 使用部分授信额度
-        if (
-          this.remainNeedReceive > creditRemainAmount &&
-          creditRemainAmount !== 0
-        ) {
-          // 需收款 > 剩余额度
-          return `(未收金额${
-            this.totalNeedReceive
-          }元,使用额度内授信${creditRemainAmount}元,额度外授信${
-            this.remainNeedReceive - creditRemainAmount
-          }元)`;
-        } else if (creditRemainAmount === 0) {
-          // 剩余额度已用完
-          return `未收金额${this.totalNeedReceive}元，使用额度外授信${this.remainNeedReceive}元`;
-        } else if (
-          this.remainNeedReceive < creditRemainAmount &&
-          creditRemainAmount !== 0
-        ) {
-          // 全部使用授信额度
-          return `未收金额${this.totalNeedReceive}元，使用额度内授信${this.remainNeedReceive}元`;
-        }
-      } else {
-        // 未设置赊账授信
-        if (creditTotalAmount === 0) {
-          return `(未收金额${this.totalNeedReceive}元)`;
-        }
-        // 超收
-        if (receiveTotal > this.remainNeedReceive) {
-          return `(超收${
-            receiveTotal - this.remainNeedReceive
-          }元计入经营往来款)`;
-        }
+      // 超收
+      if (this.receiveTotal > this.remainNeedReceive) {
+        return `(超收${
+          this.receiveTotal - this.remainNeedReceive
+        }元计入经营往来款)`;
       }
+
       return 0;
     },
   },
@@ -687,14 +696,14 @@ export default {
      * @description: 初始化请求 页面数据
      */
     async init() {
-      const { fromuser, id, isF, isP } = this.$route.query;
-      console.log("isF=>", isF, typeof isF);
+      const { fromuser, id, type, isF, isP } = this.$route.query;
+      // console.log("isF=>", isF, typeof isF);
 
       const body = {
-        payUserId: fromuser, //# 付款人UserId（当前用户传"",非平台传"姓名,手机号"）
-        toUserId: "", //# 收款人UserId（当前用户传"",非平台传"姓名,手机号"）
+        payUserId: "", //# 付款人UserId（当前用户传"",非平台传"姓名,手机号"）
+        toUserId: fromuser, //# 收款人UserId（当前用户传"",非平台传"姓名,手机号"）
         orderInfo: [
-          { orderId: id, orderType: 1 },
+          { orderId: id, orderType: Number(type) },
         ] /*  orderType 1--销售单采购单 2--筐子采购单销售单 3--退货退款单 4--退筐退款单 5--进货单  7--筐子自购  8--筐子报废单  */,
         loadType: !Number(isP) ? 0 : Number(isF), //# 0--不是 买家首次确认付款  1--是买家首次确认付款(只有平台首次为1)
         //   isReturn: 0, //# 0 不退货 1 退货 目前仅应用于 orderType 等于 5 进货单
@@ -709,6 +718,9 @@ export default {
           borrowingPrice: borrowPrice,
           transferPrice: transferOtherPrice,
           transferImageUrls,
+          credentialsImageUrls,
+          payOrder = [],
+          remark = [],
           ...rest
         } = data;
 
@@ -717,16 +729,40 @@ export default {
           borrowPrice,
           transferOtherPrice,
           ...rest,
-          // TEST
+          // FIXME:TEST DATA
           // borrowPrice: 1400,
+          // onlinePayment: {
+          //   lakalaCollection: 2000,
+          // },
+          // offlinePayment: {
+          //   cash: "490.00",
+          //   weChat: "10.00",
+          // },
+          // payOrder: [],
+          // remark: [
+          //   {
+          //     timestamp: 1665470566,
+          //     addByUserName: "A杨钢锐",
+          //     remark: "11111111111ddddddddddddddd",
+          //   },
+          // ],
         };
         // 侧视图 https://img0.baidu.com/it/u=1562650058,2452872534&fm=253&app=138&size=w931&n=0&f=JPEG&fmt=auto?sec=1685466000&t=8f4c29f587b0e0f020e99bf96587bde6
         // 2.格式化相应图片字段
-        // this.formData.transferImageUrls =
-        //   transformImgListToFileList(transferImageUrls);
-        this.formData.transferImageUrls = transformImgListToFileList([
-          "https://img0.baidu.com/it/u=1562650058,2452872534&fm=253&app=138&size=w931&n=0&f=JPEG&fmt=auto?sec=1685466000&t=8f4c29f587b0e0f020e99bf96587bde6",
-        ]);
+        this.formData.transferImageUrls = transformImgListToFileList(
+          transferImageUrls || []
+        );
+        // this.formData.transferImageUrls = transformImgListToFileList([
+        //   "https://img0.baidu.com/it/u=1562650058,2452872534&fm=253&app=138&size=w931&n=0&f=JPEG&fmt=auto?sec=1685466000&t=8f4c29f587b0e0f020e99bf96587bde6",
+        // ]);
+        // this.formData.credentialsImageUrls = transformImgListToFileList([
+        //   "https://img0.baidu.com/it/u=1562650058,2452872534&fm=253&app=138&size=w931&n=0&f=JPEG&fmt=auto?sec=1685466000&t=8f4c29f587b0e0f020e99bf96587bde6",
+        // ]);
+
+        // 显示收款详情要转换
+        this.formData.credentialsImageUrls = credentialsImageUrls || payOrder;
+        const [{ remark: remarkContent } = {}] = remark;
+        if (remarkContent) this.formData.remark = remarkContent;
 
         // 3.设置本次收款金额默认值
         const { allShouldPayPrice } = this.data;
@@ -958,6 +994,10 @@ export default {
       if (this.remainNeedReceive <= 0) {
         return true;
       }
+      // 如果是平台首次(没有表单输入)
+      if (this.isP && this.isF) {
+        return true;
+      }
       // 未赊账 需要实付款
       if (!this.isLimitRewardOn) {
         // 校验实际收款
@@ -993,99 +1033,37 @@ export default {
       }
 
       console.log("=>", "valid", "校验通过");
+      const { isSetPayWord } = this.$store.getters.userInfo;
+      console.log("isSetPayWord=>", isSetPayWord);
 
-      // 平台首次 非平台非首次/首次 开始一轮校验
-      if ((this.isP && this.isF) || (!this.isP && (!this.isF || this.isF))) {
-        // 1.是否设置支付密码
-        const { isSetPayWord } = this.$store.getters.userInfo;
-        console.log("isSetPayWord=>", isSetPayWord);
-
-        try {
-          if (!isSetPayWord) {
-            // 1.未设置支付密码
-            await this.$confirm(
-              "您还未设置付款/收款密码，无法付款/收款",
-              "提示",
-              {
-                confirmButtonText: "设置密码",
-                cancelButtonText: "关闭",
-                type: "info",
-              }
-            );
-            this.$route.push("/personalCenter/passwordSettings?active=2");
-          }
-          // 2.库存量 暂时略过 已和后端xs沟通
-
-          /* 开启授信 */
-          if (this.isLimitRewardOn) {
-            // 3.授信额度(累计授信超额) 累计授信:此次授信+之前的授信
-            if (
-              this.remainNeedReceive +
-                (this.data.creditTotalAmount -
-                  this.data.creditcreditRemainAmount) >
-              this.data.creditTotalAmount
-            ) {
-              await this.$confirm(
-                `本次授信金额${this.remainNeedReceive}元累计授信${
-                  this.remainNeedReceive +
-                  (this.data.creditTotalAmount -
-                    this.data.creditcreditRemainAmount)
-                }元，超出了您对该客户设置的授信金额${
-                  this.data.creditTotalAmount
-                }元，是否确认发送？，无法付款/收款`,
-                "提示",
-                {
-                  confirmButtonText: "确认",
-                  cancelButtonText: "取消",
-                  type: "info",
-                }
-              );
+      try {
+        if (!isSetPayWord) {
+          // 1.未设置支付密码
+          await this.$confirm(
+            "您还未设置付款/收款密码，无法付款/收款",
+            "提示",
+            {
+              confirmButtonText: "设置密码",
+              cancelButtonText: "关闭",
+              type: "info",
             }
-            // 4.授信额度(单笔授信超额) 此次授信金额 > 单笔额度
-            if (this.remainNeedReceive > this.data.creditOneAmount) {
-              await this.$confirm(
-                `本次授信金额${this.remainNeedReceive}元,超出了您对客户设置的最大单笔授信金额${this.data.creditOneAmount}元，是否确认发送？`,
-                "提示",
-                {
-                  confirmButtonText: "确认",
-                  cancelButtonText: "取消",
-                  type: "info",
-                }
-              );
-            }
-          }
-          // 校验通过
-          this.$refs.pwdRef.show();
-        } catch (error) {
-          console.log("cancel =>", error);
+          );
+          this.$route.push("/personalCenter/passwordSettings?active=2");
         }
-      } else if (this.isP && !this.isF) {
-        // 平台非首次
-        // 1.校验是否只有线下付款 打开的弹框 -> 密码/付款码
-        const { isHaveOnlinePay, isHaveOfflinePay } = this.formData;
-        if (!isHaveOnlinePay && isHaveOfflinePay) {
-          // 打开付款码弹窗
-          this.$refs.codeRef.show();
-        }
+        // 校验通过 打开密码输入框
+        this.$refs.pwdRef.show();
+      } catch (error) {
+        console.log("cancel =>", error);
       }
-
-      // FIXME:
-      // const {isHaveOfflinePay}
-      // if (this.isP && !this.isF && ()) {
-      //   // 平台 非首次 仅选择线下付款
-      //   this.$refs.codeRef.show();
-      // } else {
-
-      // }
     },
     /**
      * @description: 支付请求
      * @param
      */
     async handlePay(payload = {}) {
-      const { code } = payload;
+      const { code = "" } = payload;
 
-      const { fromuser, id } = this.$route.query;
+      const { fromuser, id, type } = this.$route.query;
 
       const {
         isComeInChecked,
@@ -1107,8 +1085,8 @@ export default {
       }
 
       const body = {
-        payUserId: fromuser, // 付款方 payUserId（当前用户传"",非平台传"姓名,手机号"）
-        toUserId: "", // 收款方 toUserId（当前用户传"",非平台传"姓名,手机号"）
+        payUserId: "", // 付款方 payUserId（当前用户传"",非平台传"姓名,手机号"）
+        toUserId: fromuser, // 收款方 toUserId（当前用户传"",非平台传"姓名,手机号"）
         payPrice: this.actualPay, // 支付金额   没有传0
         isComeInChecked: Number(isComeInChecked), // 往来款是否勾选 0 未勾选 1 已勾选
         credentialsImageUrls: transformFileListToRawList(credentialsImageUrls),
@@ -1121,7 +1099,7 @@ export default {
           ? transferOtherPrice
           : 0, // 转账其他    传全部 现无需计算
         deductInfo: deductInfo, // 对应上面 借出、转账其他、预付款字段 勾选顺序 全不勾选 传[]
-        type: this.isP ? (this.isF ? 1 : 2) : 5, // 1 首次添加收款信息（平台） 2  非首次填写收款信息（平台） 3 非首次添加付款信息（包含批量支付)、退货、退筐 退款卖家支付退款 （平台） 4 添加付款（非平台） 5 添加收款（非平台） 6 平台二维码收款 必传
+        type: Number(type), // 1 首次添加收款信息（平台） 2  非首次填写收款信息（平台） 3 非首次添加付款信息（包含批量支付)、退货、退筐 退款卖家支付退款 （平台） 4 添加付款（非平台） 5 添加收款（非平台） 6 平台二维码收款 必传
         isHaveOnlinePay: Number(isHaveOnlinePay),
         credentialsImageUrls: transformFileListToRawList(credentialsImageUrls), // 支付凭证图片  选填
         transferArea, // 车牌号地区   新增字段
@@ -1139,7 +1117,7 @@ export default {
         orderInfo: [
           {
             orderId: id, // 订单主键id #必传
-            orderType: 1, // 1--采购单  2--筐子采购单  3--退货退款单  4--退筐退货单 5--进货单 7--筐子自购单 10--筐子报废单 #必传
+            orderType: Number(type), // 1--采购单  2--筐子采购单  3--退货退款单  4--退筐退货单 5--进货单 7--筐子自购单 10--筐子报废单 #必传
           },
         ],
         payWay: _.pickBy(payWay) /* payWay字段:空的不传 */,
@@ -1151,7 +1129,7 @@ export default {
 
       if (status === 200) {
         // 弹窗提示
-        await this.$confirm("销售单发送成功", "提示", {
+        await this.$confirm("付款成功", "提示", {
           confirmButtonText: "确定",
           showCancelButton: false,
           type: "success",
@@ -1331,30 +1309,29 @@ export default {
       padding: 18px 16px;
     }
   }
-  // 全部赊账
-  .container-credit {
+
+  .container-bill {
     &__label {
-      color: #0106218c;
-
-      margin-bottom: 8px;
+      margin-bottom: 10px;
     }
-    &__check {
-      /deep/ .el-checkbox {
-        color: rgba(1, 6, 33, 0.898);
+    &__content {
+      color: rgba(1, 6, 33, 0.75);
+      margin-left: 24px;
+      .content-row:not(:last-of-type) {
+        margin-bottom: 16px;
       }
-      background: rgba(1, 6, 33, 0.0196);
-      border-radius: 2px 2px 2px 2px;
-      padding: 18px 16px;
 
-      .limit-valid {
+      .content-row__detail {
+        margin: 8px 16px;
         color: rgba(1, 6, 33, 0.55);
-        margin-left: 48px;
-        margin-right: 32px;
+
+        span {
+          margin-right: 32px;
+        }
       }
-      // .limit-expire {
-      // }
     }
   }
+
   // 剩余需收
   .container-remain-needreceive {
     .remain-needreceive__label {

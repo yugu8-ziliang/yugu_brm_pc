@@ -1152,7 +1152,7 @@ export default {
 
       if (status === 200) {
         // 弹窗提示
-        await this.$confirm("销售单发送成功", "提示", {
+        await this.$confirm("添加收款成功", "提示", {
           confirmButtonText: "确定",
           showCancelButton: false,
           type: "success",

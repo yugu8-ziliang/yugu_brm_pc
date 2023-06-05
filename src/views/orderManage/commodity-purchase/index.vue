@@ -8,7 +8,7 @@
     @pagination="handlePagination"
   >
     <el-container class="main_styl">
-      <el-header style="height: 75px">
+      <el-header style="height: auto">
         <el-row :gutter="55">
           <el-col :span="3">
             <h5 style="color: rgba(1, 6, 33, 0.55)">采购单金额(元)</h5>
@@ -623,7 +623,7 @@ export default {
       console.log(id, type);
       this.$router.push({
         path: "purchase-detail",
-        query: { id: id, type: usertype },
+        query: { id: id, type: usertype, isP: Number(type !== 0) }, //isP 是否平台用户
       });
     },
     sortChange(column) {

@@ -1177,7 +1177,7 @@ export default {
           ? ""
           : this.detailMsg.fromusername + "," + this.detailMsg.fromuserphone;
       this.$router.push({
-        path: "addCollection",
+        path: "add-sale",
         query: {
           id: this.detailMsg.id,
           isF: Number(!this.detailMsg.confirmTimestamp), //是否首次
