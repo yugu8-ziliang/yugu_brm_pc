@@ -168,7 +168,7 @@
               >
                 <el-checkbox
                   v-model="formData.isHaveOnlinePay"
-                  @change="(value) => onOnlineCheckedChange(value)"
+                  @change="onOnlineCheckedChange"
                   >线上收款
                 </el-checkbox>
               </template>
@@ -177,7 +177,7 @@
               >
                 <el-checkbox
                   v-model="formData.isHaveOfflinePay"
-                  @change="(value) => onOfflineCheckedChange(value)"
+                  @change="onOfflineCheckedChange"
                   >线下收款</el-checkbox
                 >
               </template>
@@ -372,10 +372,10 @@ import {
 } from "@/request/api/addCollection/index";
 import { getToken } from "@/utils/auth";
 
-import Pwd from "./Pwd";
-import Code from "./Code";
-import SelectArea from "./SelectArea";
-import Tips from "./Tips";
+import Pwd from "../components/Pwd";
+import Code from "../components/Code";
+import SelectArea from "../components/SelectArea";
+import Tips from "../components/Tips";
 
 import {
   offlineReceiptWaysMap,
@@ -388,6 +388,8 @@ import {
   splitOnlineImgAndLocalImg,
   transformFileListToImgList,
 } from "@/utils/image-upload";
+
+import _ from "lodash";
 export default {
   nameL: "addCollection",
   components: { Pwd, Code, SelectArea, Tips },
@@ -685,14 +687,16 @@ export default {
      * @description: 初始化请求 页面数据
      */
     async init() {
-      const { fromuser, id, isF } = this.$route.query;
+      const { fromuser, id, isF, isP } = this.$route.query;
       console.log("isF=>", isF, typeof isF);
 
       const body = {
         payUserId: fromuser, //# 付款人UserId（当前用户传"",非平台传"姓名,手机号"）
         toUserId: "", //# 收款人UserId（当前用户传"",非平台传"姓名,手机号"）
-        orderInfo: [{ orderId: id, orderType: 1 }],
-        loadType: Number(isF), //# 0--不是 买家首次确认付款  1--是买e家首次确认付款
+        orderInfo: [
+          { orderId: id, orderType: 1 },
+        ] /*  orderType 1--销售单采购单 2--筐子采购单销售单 3--退货退款单 4--退筐退款单 5--进货单  7--筐子自购  8--筐子报废单  */,
+        loadType: !Number(isP) ? 0 : Number(isF), //# 0--不是 买家首次确认付款  1--是买家首次确认付款(只有平台首次为1)
         //   isReturn: 0, //# 0 不退货 1 退货 目前仅应用于 orderType 等于 5 进货单
       };
       const { status, data } = await newPayLoad(body);
@@ -990,8 +994,8 @@ export default {
 
       console.log("=>", "valid", "校验通过");
 
-      // 平台首次 开始一轮校验
-      if ((this.isP && this.isF) || (!this.isP && !this.isF)) {
+      // 平台首次 非平台非首次/首次 开始一轮校验
+      if ((this.isP && this.isF) || (!this.isP && (!this.isF || this.isF))) {
         // 1.是否设置支付密码
         const { isSetPayWord } = this.$store.getters.userInfo;
         console.log("isSetPayWord=>", isSetPayWord);
@@ -1105,7 +1109,7 @@ export default {
       const body = {
         payUserId: fromuser, // 付款方 payUserId（当前用户传"",非平台传"姓名,手机号"）
         toUserId: "", // 收款方 toUserId（当前用户传"",非平台传"姓名,手机号"）
-        payPrice: 0, // 支付金额   没有传0
+        payPrice: this.actualPay, // 支付金额   没有传0
         isComeInChecked: Number(isComeInChecked), // 往来款是否勾选 0 未勾选 1 已勾选
         credentialsImageUrls: transformFileListToRawList(credentialsImageUrls),
         creditPrice: this.isLimitRewardOn ? this.remainNeedReceive : 0, // 赊账金额 (订单-经营往来款-其他抵扣)  没有传0
@@ -1118,7 +1122,7 @@ export default {
           : 0, // 转账其他    传全部 现无需计算
         deductInfo: deductInfo, // 对应上面 借出、转账其他、预付款字段 勾选顺序 全不勾选 传[]
         type: this.isP ? (this.isF ? 1 : 2) : 5, // 1 首次添加收款信息（平台） 2  非首次填写收款信息（平台） 3 非首次添加付款信息（包含批量支付)、退货、退筐 退款卖家支付退款 （平台） 4 添加付款（非平台） 5 添加收款（非平台） 6 平台二维码收款 必传
-        isHaveOnlinePay,
+        isHaveOnlinePay: Number(isHaveOnlinePay),
         credentialsImageUrls: transformFileListToRawList(credentialsImageUrls), // 支付凭证图片  选填
         transferArea, // 车牌号地区   新增字段
         transferNumber, // 车牌号       新增字段
@@ -1138,7 +1142,7 @@ export default {
             orderType: 1, // 1--采购单  2--筐子采购单  3--退货退款单  4--退筐退货单 5--进货单 7--筐子自购单 10--筐子报废单 #必传
           },
         ],
-        payWay,
+        payWay: _.pickBy(payWay) /* payWay字段:空的不传 */,
       };
 
       console.log("提交支付=>", body);
@@ -1152,8 +1156,8 @@ export default {
           showCancelButton: false,
           type: "success",
         });
-        // 前往密码设置页
-        this.$router.push("/personalCenter/passwordSettings?active=2");
+        // 前往详情页
+        this.$closePage();
       } else {
         // 弹窗提示
         this.$confirm(msg, "提示", {
@@ -1167,16 +1171,22 @@ export default {
     /**
      * @description: 是否勾线上付款
      * @param value 当前值
+     * @remark 非平台 无论首次或再次，只能线上线下二选一
      */
     onOnlineCheckedChange(value) {
-      const { isHaveOfflinePay } = this.formData;
       // 取消勾选线下付款时 重置下面所有方式的input显示
       if (!value) {
         this.onlineReceiptValue = 0;
       } else {
+        if (!this.isP && this.formData.isHaveOfflinePay) {
+          // 清空线下收款
+          this.formData.isHaveOfflinePay = false;
+          //
+          this.resetOfflineReceiptWayInput();
+        }
         // 勾选
         // 1. 线下付款未勾选的时候
-        if (!isHaveOfflinePay) {
+        if (!this.formData.isHaveOfflinePay) {
           // 赋值剩余需收款
           this.onlineReceiptValue = this.remainNeedReceive;
         }
@@ -1188,10 +1198,16 @@ export default {
     /**
      * @description: 是否勾选线下付款
      * @param value 当前值
+     * @remark 非平台 无论首次或再次，只能线上线下二选一
      */
     onOfflineCheckedChange(value) {
-      // 取消勾选线下付款时 重置下面所有方式的input显示
-      if (!value) this.payWayCheckedMap = this.$options.data().payWayCheckedMap;
+      if (!value) {
+        this.payWayCheckedMap = this.$options.data().payWayCheckedMap;
+      }
+
+      if (value && !this.isP && this.formData.isHaveOnlinePay) {
+        this.formData.isHaveOnlinePay = false;
+      }
       // validate form
       this.validatePay();
     },

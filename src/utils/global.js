@@ -212,10 +212,10 @@ export default {
           // 数组
           if (Array.isArray(value)) {
             // 空数组
-            if (value.length === 0) {
-              form.append(key, "");
-              continue;
-            }
+            // if (value.length === 0) {
+            //   form.append(key, JSON);
+            //   continue;
+            // }
 
             if (value.every((_) => _ instanceof File)) {
               for (let index = 0; index < value.length; index++) {
@@ -224,6 +224,7 @@ export default {
               }
             } else {
               form.append(key, JSON.stringify(value));
+              // form.append(key, value);
             }
           } else if (
             // 对象
@@ -233,7 +234,7 @@ export default {
             form.append(key, JSON.stringify(value));
           } else {
             {
-              // 普通类型 || File
+              // 普通类型
               form.append(key, value);
             }
           }
