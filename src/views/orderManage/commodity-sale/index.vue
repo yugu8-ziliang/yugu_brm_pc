@@ -539,7 +539,7 @@ export default {
     },
     check(id, type) {
       this.$router.push({
-        path: "commoditySalesOrderDetail",
+        path: "sale-detail",
         query: { id: id, isP: Number(type !== 0) }, //isP 是否平台用户
       });
     },

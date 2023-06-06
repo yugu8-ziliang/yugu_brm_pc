@@ -33,7 +33,7 @@ export function closePage(targetRoutePath, query) {
     } else {
       const latestView = visitedViews.slice(-1)[0];
       if (latestView) {
-        vm.$router.push(latestView.fullPath);
+        vm.$router.push(latestView.fullPath + "&ts=123");
       } else {
         vm.$router.push("/");
       }
@@ -201,7 +201,6 @@ export default {
       //   // existingFormData, // optional
       //   // keyPrefix // optional
       // );
-      // FIXME:表单转换 参数异常
       // 创建
       const form = new FormData();
       // 循环
@@ -212,10 +211,10 @@ export default {
           // 数组
           if (Array.isArray(value)) {
             // 空数组
-            // if (value.length === 0) {
-            //   form.append(key, JSON);
-            //   continue;
-            // }
+            if (value.length === 0) {
+              form.append(key, JSON.stringify(value));
+              continue;
+            }
 
             if (value.every((_) => _ instanceof File)) {
               for (let index = 0; index < value.length; index++) {

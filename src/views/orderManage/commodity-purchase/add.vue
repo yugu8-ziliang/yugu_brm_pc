@@ -1063,7 +1063,7 @@ export default {
     async handlePay(payload = {}) {
       const { code = "" } = payload;
 
-      const { fromuser, id, type } = this.$route.query;
+      const { fromuser, id } = this.$route.query;
 
       const {
         isComeInChecked,
@@ -1099,7 +1099,7 @@ export default {
           ? transferOtherPrice
           : 0, // 转账其他    传全部 现无需计算
         deductInfo: deductInfo, // 对应上面 借出、转账其他、预付款字段 勾选顺序 全不勾选 传[]
-        type: Number(type), // 1 首次添加收款信息（平台） 2  非首次填写收款信息（平台） 3 非首次添加付款信息（包含批量支付)、退货、退筐 退款卖家支付退款 （平台） 4 添加付款（非平台） 5 添加收款（非平台） 6 平台二维码收款 必传
+        type: !this.isP ? 4 : !this.isF ? 3 : null, // 平台没有首次收款的情况 1 首次添加收款信息（平台） 2  非首次填写收款信息（平台） 3 非首次添加付款信息（包含批量支付)、退货、退筐 退款卖家支付退款 （平台） 4 添加付款（非平台） 5 添加收款（非平台） 6 平台二维码收款 必传
         isHaveOnlinePay: Number(isHaveOnlinePay),
         credentialsImageUrls: transformFileListToRawList(credentialsImageUrls), // 支付凭证图片  选填
         transferArea, // 车牌号地区   新增字段

@@ -244,7 +244,7 @@ export const constantRoutes = [
         },
       },
       {
-        path: "commodity-detail",
+        path: "sale-detail",
         name: "CommoditySaleDetail",
         hidden: true,
         component: () => import("@/views/orderManage/commodity-sale/detail"),
@@ -252,16 +252,28 @@ export const constantRoutes = [
           title: "销售单详情",
           icon: " ",
           activeMenu: "/orderManagement/commodity-sale",
+          noCache: true,
         },
       },
       {
-        path: "add-collection",
+        path: "add-sale",
         name: "AddCommoditySale",
         hidden: true,
         component: () => import("@/views/orderManage/commodity-sale/add"),
         meta: {
           title: "填写收款信息",
           icon: " ",
+        },
+        beforeEnter(to, from, next) {
+          const { path } = from;
+
+          if (path === "/orderManagement/sale-detail") {
+            to.meta.activeMenu = "/orderManagement/commodity-sale";
+          } else if (path === "/orderManagement/purchase-detail") {
+            to.meta.activeMenu = "/orderManagement/commodity-purchase";
+          }
+
+          next();
         },
       },
       {
@@ -284,6 +296,7 @@ export const constantRoutes = [
           title: "采购单详情",
           icon: " ",
           activeMenu: "/orderManagement/purchase-list",
+          noCache: true,
         },
       },
 

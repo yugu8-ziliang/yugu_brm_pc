@@ -1183,7 +1183,7 @@ export default {
           isF: Number(!this.detailMsg.confirmTimestamp), //是否首次
           isP: Number(!isP) !== 1 ? (ordertype === 1 ? 1 : 0) : 0,
           fromuser: fromuser,
-          ordertype: this.detailMsg.ordertype,
+          // type: this.detailMsg.ordertype,
         },
       });
     },

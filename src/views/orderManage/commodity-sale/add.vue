@@ -28,8 +28,7 @@
     <!-- 经营往来款抵充 -->
     <!-- FIXME:散户添加收付款时，不显示经营往来款抵充 ?  -->
     <!-- 经营往来款抵充为0，且平账金额为0时不显示该选项 -->
-    <!-- v-if="data.comeInPrice !== 0 || data.balancePrice !== 0" -->
-    <template>
+    <template v-if="data.comeInPrice !== 0 || data.balancePrice !== 0">
       <div class="container-current">
         <div class="label container-current__label">
           <span>经营往来款抵充</span
@@ -723,11 +722,12 @@ export default {
         };
         // 侧视图 https://img0.baidu.com/it/u=1562650058,2452872534&fm=253&app=138&size=w931&n=0&f=JPEG&fmt=auto?sec=1685466000&t=8f4c29f587b0e0f020e99bf96587bde6
         // 2.格式化相应图片字段
-        // this.formData.transferImageUrls =
-        //   transformImgListToFileList(transferImageUrls);
-        this.formData.transferImageUrls = transformImgListToFileList([
-          "https://img0.baidu.com/it/u=1562650058,2452872534&fm=253&app=138&size=w931&n=0&f=JPEG&fmt=auto?sec=1685466000&t=8f4c29f587b0e0f020e99bf96587bde6",
-        ]);
+        this.formData.transferImageUrls = transformImgListToFileList(
+          transferImageUrls || []
+        );
+        // this.formData.transferImageUrls = transformImgListToFileList([
+        //   "https://img0.baidu.com/it/u=1562650058,2452872534&fm=253&app=138&size=w931&n=0&f=JPEG&fmt=auto?sec=1685466000&t=8f4c29f587b0e0f020e99bf96587bde6",
+        // ]);
 
         // 3.设置本次收款金额默认值
         const { allShouldPayPrice } = this.data;
@@ -1140,7 +1140,7 @@ export default {
         orderInfo: [
           {
             orderId: id, // 订单主键id #必传
-            orderType: 1, // 1--采购单  2--筐子采购单  3--退货退款单  4--退筐退货单 5--进货单 7--筐子自购单 10--筐子报废单 #必传
+            orderType: 1, // 1--销售单采购单  2--筐子采购单  3--退货退款单  4--退筐退货单 5--进货单 7--筐子自购单 10--筐子报废单 #必传
           },
         ],
         payWay: _.pickBy(payWay) /* payWay字段:空的不传 */,
