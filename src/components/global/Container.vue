@@ -7,23 +7,12 @@
       <div class="container-header__actions">
         <!-- 刷新 -->
         <div class="actions-item">
-          <el-button
-            v-show="refreshVisible"
-            size="mini"
-            icon="el-icon-refresh-right"
-            @click="handleRefresh"
-            >刷新</el-button
-          >
+          <el-button v-show="refreshVisible" size="mini" icon="el-icon-refresh-right"
+            @click="handleRefresh">刷新</el-button>
         </div>
         <!-- 返回 -->
         <div class="actions-item">
-          <el-button
-            v-show="backVisible"
-            size="mini"
-            icon="el-icon-arrow-left"
-            @click="handleBack"
-            >返回</el-button
-          >
+          <el-button v-show="backVisible" size="mini" icon="el-icon-arrow-left" @click="handleBack">返回</el-button>
         </div>
       </div>
     </div>
@@ -78,17 +67,20 @@ export default {
 $headerTop: 112px;
 $headerHeight: 56px;
 $footerHieght: 52px;
+
 // @include DEBUG();
 .container {
   margin: 0 24px 0 5px;
+
   .container-header {
     display: flex;
     justify-content: space-between;
     margin: 18px 0 10px;
+
     .container-header__title {
       font-size: 20px;
       font-family: PingFangSC-, PingFang SC;
-      font-weight: normal;
+      font-weight: 500;
       color: rgba(1, 6, 33, 0.9);
       line-height: 28px;
     }

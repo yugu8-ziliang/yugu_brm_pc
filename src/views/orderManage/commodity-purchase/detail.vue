@@ -20,7 +20,7 @@
       <el-button size="mini">打印</el-button>
     </div> -->
     <!-- 订单信息 -->
-    <el-card class="card" v-if="orderType != 2" shadow="hover">
+    <el-card class="card" v-if="orderType != 2" shadow="always">
       <!-- header -->
       <div slot="header" class="card-header">
         <div class="card-header__title">
@@ -64,7 +64,7 @@
       </div>
       <div class="card-body">
         <!-- body -->
-        <el-row :gutter="40" justify="start" align="middle">
+        <el-row :gutter="10" justify="start" align="middle">
           <!-- 1:采购单编号 -->
           <el-col :xs="12" :sm="12" :md="8" :lg="6" :xl="4">
             <div class="grid-content">
@@ -93,7 +93,7 @@
               </span>
             </div>
           </el-col>
-          <!-- 4:订单时间 -->
+          <!-- 4:订单金额 -->
           <el-col :xs="12" :sm="12" :md="8" :lg="6" :xl="4">
             <div class="grid-content">
               <span class="label text--info">订单金额:</span>
@@ -106,7 +106,7 @@
           <el-col :xs="12" :sm="12" :md="8" :lg="6" :xl="4">
             <div class="grid-content">
               <span class="label text--info" v-if="detailMsg.statusname == '待确认' ||
-                detailMsg.statusname == '待对方收款'">
+                detailMsg.statusname == '待对方收款' || detailMsg.statusname == '未结清'">
                 {{
                   detailMsg.unrecognizedamount > 0 && detailMsg.payPrice > 0
                   ? '合计确认金额'
@@ -185,19 +185,15 @@
                     }}
                   </p>
                 </div>
-                <u style="color: #0ba198">
+                <span style="color: #0ba198">
                   {{
                     currencyFormat(
-                      Number(detailMsg.unrecognizedamount) +
-                      Number(detailMsg.payPrice)
-                    ) + "元"
-                  }}
-                  {{
-                    detailMsg.unrecognizedamount == 0 && detailMsg.payPrice == 0
-                    ? "赊账"
-                    : ""
-                  }}
-                </u>
+                      Number(detailMsg.unrecognizedamount || 0) +
+                      Number(detailMsg.payPrice || 0)
+                    )
+                  }}元
+                </span>
+                <span v-show="!detailMsg.unrecognizedamount && !detailMsg.payPrice">(赊账)</span>
               </el-tooltip>
             </div>
           </el-col>
@@ -205,7 +201,7 @@
       </div>
     </el-card>
     <!-- 客户信息 -->
-    <el-card class="card" v-if="orderType != 2" shadow="hover">
+    <el-card class="card" v-if="orderType != 2" shadow="always">
       <!-- header -->
       <div slot="header" class="card-header">
         <div class="card-header__title">
@@ -237,7 +233,7 @@
       </div>
     </el-card>
     <!-- 商品信息 -->
-    <el-card class="card" shadow="hover">
+    <el-card class="card" shadow="always">
       <!-- header -->
       <div slot="header" class="card-header">
         <div class="card-header__title">
@@ -370,7 +366,7 @@
 
     </el-card>
     <!-- 合计 -->
-    <el-card class="card" v-if="orderType != 2" shadow="hover">
+    <el-card class="card" v-if="orderType != 2" shadow="always">
       <!-- header -->
       <div slot="header" class="card-header">
         <div class="card-header__title">
@@ -433,7 +429,7 @@
       </div>
     </el-card>
     <!-- 运输信息 -->
-    <el-card class="card" v-if="orderType != 2" shadow="hover">
+    <el-card class="card" v-if="orderType != 2" shadow="always">
       <!-- header -->
       <div slot="header" class="card-header">
         <div class="card-header__title">
@@ -472,7 +468,7 @@
       </div>
     </el-card>
     <!-- 备注 -->
-    <el-card class="card" v-if="orderType != 2" shadow="hover">
+    <el-card class="card" v-if="orderType != 2" shadow="always">
       <!-- header -->
       <div slot="header" class="card-header">
         <div class="card-header__title">
@@ -1138,5 +1134,18 @@ export default {
       }
     }
   }
+}
+
+// 23.6.8
+/deep/ .container-main {
+  background: none !important;
+  padding: 0 !important;
+}
+
+/deep/ .container-header .container-header__title {
+  background-color: #fff;
+  padding: 4px 8px;
+  border-radius: 4px;
+  box-shadow: 0 1px 6px 0 rgba(0, 0, 0, 0.1);
 }
 </style>
