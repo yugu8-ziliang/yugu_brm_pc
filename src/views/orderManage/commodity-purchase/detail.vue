@@ -1144,7 +1144,7 @@ export default {
 
 /deep/ .container-header .container-header__title {
   background-color: #fff;
-  padding: 4px 8px;
+  padding: 4px 10px;
   border-radius: 4px;
   box-shadow: 0 1px 6px 0 rgba(0, 0, 0, 0.1);
 }
