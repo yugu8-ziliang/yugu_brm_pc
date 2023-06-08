@@ -199,6 +199,16 @@
           </el-col>
         </el-row>
       </div>
+      <div class="card-footer">
+        <el-link type="primary" v-if="detailMsg.statusname == '未结清' || detailMsg.statusname == '已结清'
+          ">
+          退款记录
+        </el-link>
+        <el-link type="primary" style="margin-left: 24px" v-if="detailMsg.statusname == '未结清' || detailMsg.statusname == '已结清'
+          " @click="paymentRecord">
+          付款记录
+        </el-link>
+      </div>
     </el-card>
     <!-- 客户信息 -->
     <el-card class="card" v-if="orderType != 2" shadow="always">
@@ -488,16 +498,6 @@
         <div v-else class="text--info">暂无信息</div>
       </div>
     </el-card>
-    <div class="button_layout_left" v-if="orderType != 2">
-      <el-button type="text" v-if="detailMsg.statusname == '未结清' || detailMsg.statusname == '已结清'
-        ">
-        <u>退款记录</u>
-      </el-button>
-      <el-button type="text" style="margin-left: 80px" v-if="detailMsg.statusname == '未结清' || detailMsg.statusname == '已结清'
-        " @click="paymentRecord()">
-        <u>付款记录</u>
-      </el-button>
-    </div>
     <el-dialog title="商品详情" :visible.sync="dialogVisible" width="80%" :before-close="handleClose">
       <el-descriptions :title="checkedDetails.firstClassifyName +
         '-' +
